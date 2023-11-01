@@ -43,17 +43,17 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
             msg = await userbot.get_messages(chat, msg_id)
             if msg.media:
                 if msg.media==MessageMediaType.WEB_PAGE:
-                    edit = await client.edit_message_text(sender, edit_id, "Cloning.")
+                    edit = await client.edit_message_text(sender, edit_id, "正在复制")
                     await client.send_message(sender, msg.text.markdown)
                     await edit.delete()
                     return
             if not msg.media:
                 if msg.text:
-                    edit = await client.edit_message_text(sender, edit_id, "Cloning.")
+                    edit = await client.edit_message_text(sender, edit_id, "正在复制")
                     await client.send_message(sender, msg.text.markdown)
                     await edit.delete()
                     return
-            edit = await client.edit_message_text(sender, edit_id, "Trying to Download.")
+            edit = await client.edit_message_text(sender, edit_id, "正在下载")
             file = await userbot.download_media(
                 msg,
                 progress=progress_for_pyrogram,
@@ -65,13 +65,13 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                 )
             )
             print(file)
-            await edit.edit('Preparing to Upload!')
+            await edit.edit('正在上传')
             caption = None
             if msg.caption is not None:
                 caption = msg.caption
             if msg.media==MessageMediaType.VIDEO_NOTE:
                 round_message = True
-                print("Trying to get metadata")
+                print("尝试获取元数据")
                 data = video_metadata(file)
                 height, width, duration = data["height"], data["width"], data["duration"]
                 print(f'd: {duration}, w: {width}, h:{height}')
@@ -87,13 +87,13 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                     progress=progress_for_pyrogram,
                     progress_args=(
                         client,
-                        '**UPLOADING:**\n',
+                        '**上传中:**\n',
                         edit,
                         time.time()
                     )
                 )
             elif msg.media==MessageMediaType.VIDEO and msg.video.mime_type in ["video/mp4", "video/x-matroska"]:
-                print("Trying to get metadata")
+                print("尝试获取元数据")
                 data = video_metadata(file)
                 height, width, duration = data["height"], data["width"], data["duration"]
                 print(f'd: {duration}, w: {width}, h:{height}')
@@ -111,14 +111,14 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                     progress=progress_for_pyrogram,
                     progress_args=(
                         client,
-                        '**UPLOADING:**\n',
+                        '**上传中:**\n',
                         edit,
                         time.time()
                     )
                 )
 
             elif msg.media==MessageMediaType.PHOTO:
-                await edit.edit("Uploading photo.")
+                await edit.edit("图片上传中.")
                 await bot.send_file(sender, file, caption=caption)
             else:
                 thumb_path=thumbnail(sender)
@@ -130,7 +130,7 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                     progress=progress_for_pyrogram,
                     progress_args=(
                         client,
-                        '**UPLOADING:**\n',
+                        '**上传中:**\n',
                         edit,
                         time.time()
                     )
@@ -143,7 +143,7 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                 pass
             await edit.delete()
         except (ChannelBanned, ChannelInvalid, ChannelPrivate, ChatIdInvalid, ChatInvalid):
-            await client.edit_message_text(sender, edit_id, "Have you joined the channel?")
+            await client.edit_message_text(sender, edit_id, "你好像没有加入频道")
             return
         except PeerIdInvalid:
             chat = msg_link.split("/")[-3]
@@ -166,12 +166,12 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                         attributes = [DocumentAttributeVideo(duration=duration, w=width, h=height, round_message=round_message, supports_streaming=True)]
                         await bot.send_file(sender, uploader, caption=caption, thumb=thumb_path, attributes=attributes, force_document=False)
                     elif msg.media==MessageMediaType.VIDEO_NOTE:
-                        uploader = await fast_upload(f'{file}', f'{file}', UT, bot, edit, '**UPLOADING:**')
+                        uploader = await fast_upload(f'{file}', f'{file}', UT, bot, edit, '**上传中:**')
                         attributes = [DocumentAttributeVideo(duration=duration, w=width, h=height, round_message=round_message, supports_streaming=True)]
                         await bot.send_file(sender, uploader, caption=caption, thumb=thumb_path, attributes=attributes, force_document=False)
                     else:
                         UT = time.time()
-                        uploader = await fast_upload(f'{file}', f'{file}', UT, bot, edit, '**UPLOADING:**')
+                        uploader = await fast_upload(f'{file}', f'{file}', UT, bot, edit, '**上传中:**')
                         await bot.send_file(sender, uploader, caption=caption, thumb=thumb_path, force_document=True)
                     if os.path.isfile(file) == True:
                         os.remove(file)
@@ -198,7 +198,7 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
             pass
         await edit.delete()
     else:
-        edit = await client.edit_message_text(sender, edit_id, "Cloning.")
+        edit = await client.edit_message_text(sender, edit_id, "克隆中")
         chat =  msg_link.split("t.me")[1].split("/")[1]
         try:
             msg = await client.copy_message(sender, chat, msg_id)
@@ -208,9 +208,9 @@ async def get_msg(userbot, client, bot, sender, edit_id, msg_link, i):
                 return await get_msg(userbot, client, bot, sender, edit_id, new_link, i)
         except Exception as e:
             print(e)
-            return await client.edit_message_text(sender, edit_id, f'Failed to save: `{msg_link}`\n\nError: {str(e)}')
+            return await client.edit_message_text(sender, edit_id, f'保存失败: `{msg_link}`\n\nError: {str(e)}')
         await edit.delete()
         
 async def get_bulk_msg(userbot, client, sender, msg_link, i):
-    x = await client.send_message(sender, "Processing!")
+    x = await client.send_message(sender, "处理中")
     await get_msg(userbot, client, Drone, sender, x.id, msg_link, i)
