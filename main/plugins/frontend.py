@@ -13,9 +13,9 @@ from pyrogram.errors import FloodWait
 
 from ethon.telefunc import force_sub
 
-ft = f"To use this bot you've to join @{fs}."
+ft = f"用这个bot之前请先订阅 @{fs}."
 
-message = "Send me the message link you want to start saving from, as a reply to this message."
+message = "把你想要下载的链接回复给这条信息"
 
 @Drone.on(events.NewMessage(incoming=True, func=lambda e: e.is_private))
 async def clone(event):
@@ -33,7 +33,7 @@ async def clone(event):
     if s == True:
         await event.reply(r)
         return
-    edit = await event.reply("Processing!")
+    edit = await event.reply("处理中")
     try:
         if 't.me/+' in link:
             q = await join(userbot, link)
@@ -42,8 +42,8 @@ async def clone(event):
         if 't.me/' in link:
             await get_msg(userbot, Bot, Drone, event.sender_id, edit.id, link, 0)
     except FloodWait as fw:
-        return await Drone.send_message(event.sender_id, f'Try again after {fw.x} seconds due to floodwait from telegram.')
+        return await Drone.send_message(event.sender_id, f'由于请求太多，将在 {fw.x} 秒后继续尝试.')
     except Exception as e:
         print(e)
-        await Drone.send_message(event.sender_id, f"An error occurred during cloning of `{link}`\n\n**Error:** {str(e)}")
+        await Drone.send_message(event.sender_id, f"复制过程中出现错误 `{link}`\n\n**Error:** {str(e)}")
     
