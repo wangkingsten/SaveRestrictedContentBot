@@ -29,9 +29,9 @@ batch = []
 @Drone.on(events.NewMessage(incoming=True, from_users=AUTH, pattern='/cancel'))
 async def cancel(event):
     if not event.sender_id in batch:
-        return await event.reply("No batch active.")
+        return await event.reply("目前没有批量下载")
     batch.clear()
-    await event.reply("Done.")
+    await event.reply("已完成")
     
 @Drone.on(events.NewMessage(incoming=True, from_users=AUTH, pattern='/batch'))
 async def _batch(event):
@@ -42,35 +42,35 @@ async def _batch(event):
         await event.reply(r)
         return       
     if event.sender_id in batch:
-        return await event.reply("You've already started one batch, wait for it to complete you dumbfuck owner!")
+        return await event.reply("目前批量下载未完成，稍后再试")
     async with Drone.conversation(event.chat_id) as conv: 
         if s != True:
-            await conv.send_message("Send me the message link you want to start saving from, as a reply to this message.", buttons=Button.force_reply())
+            await conv.send_message("把想要下载的链接回复给本条消息", buttons=Button.force_reply())
             try:
                 link = await conv.get_reply()
                 try:
                     _link = get_link(link.text)
                 except Exception:
-                    await conv.send_message("No link found.")
+                    await conv.send_message("没有发现链接")
                     return conv.cancel()
             except Exception as e:
                 print(e)
-                await conv.send_message("Cannot wait more longer for your response!")
+                await conv.send_message("等不到回复，已经取消")
                 return conv.cancel()
-            await conv.send_message("Send me the number of files/range you want to save from the given message, as a reply to this message.", buttons=Button.force_reply())
+            await conv.send_message("把想要下载的文件范围回复给本条消息", buttons=Button.force_reply())
             try:
                 _range = await conv.get_reply()
             except Exception as e:
                 print(e)
-                await conv.send_message("Cannot wait more longer for your response!")
+                await conv.send_message("等不到回复，已经取消")
                 return conv.cancel()
             try:
                 value = int(_range.text)
                 if value > 100:
-                    await conv.send_message("You can only get upto 100 files in a single batch.")
+                    await conv.send_message("批量下载一次最多100个")
                     return conv.cancel()
             except ValueError:
-                await conv.send_message("Range must be an integer!")
+                await conv.send_message("范围必须是整数")
                 return conv.cancel()
             batch.append(event.sender_id)
             await run_batch(userbot, Bot, event.sender_id, _link, value) 
@@ -93,21 +93,21 @@ async def run_batch(userbot, client, sender, link, _range):
                 timer = 3
         try: 
             if not sender in batch:
-                await client.send_message(sender, "Batch completed.")
+                await client.send_message(sender, "批量下载已经完成")
                 break
         except Exception as e:
             print(e)
-            await client.send_message(sender, "Batch completed.")
+            await client.send_message(sender, "批量下载已经完成")
             break
         try:
             await get_bulk_msg(userbot, client, sender, link, i) 
         except FloodWait as fw:
             if int(fw.x) > 299:
-                await client.send_message(sender, "Cancelling batch since you have floodwait more than 5 minutes.")
+                await client.send_message(sender, "请求太多，批量下载已经取消")
                 break
             await asyncio.sleep(fw.x + 5)
             await get_bulk_msg(userbot, client, sender, link, i)
-        protection = await client.send_message(sender, f"Sleeping for `{timer}` seconds to avoid Floodwaits and Protect account!")
+        protection = await client.send_message(sender, f"暂停 `{timer}` 秒避免被断开连接")
         await asyncio.sleep(timer)
         await protection.delete()
             
