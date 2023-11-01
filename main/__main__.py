@@ -15,7 +15,7 @@ for name in files:
         plugin_name = patt.stem
         load_plugins(plugin_name.replace(".py", ""))
 
-#Don't be a thief 
+
 print("Successfully deployed!")
 
 if __name__ == "__main__":
