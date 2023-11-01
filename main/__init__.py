@@ -20,19 +20,14 @@ AUTH = config("AUTH", default=None, cast=int)
 
 bot = TelegramClient('bot', API_ID, API_HASH).start(bot_token=BOT_TOKEN) 
 with Client("pyrogram" ,api_id=API_ID ,api_hash=API_HASH, hide_password=False) as userbot:
-    SESSION = "你的SESSION为\n" + (pyrogram.export_session_string())
-    print("\n正在生成你的SESSION...\n")
+    SESSION = "你的pyrogram_SESSION为\n" + (pyrogram.export_session_string())
+    print("\n正在生成你的pyrogramSESSION...\n")
     print(SESSION)
 
-Bot = Client(
-    "SaveRestricted",
-    bot_token=BOT_TOKEN,
-    api_id=int(API_ID),
-    api_hash=API_HASH
-)    
+Bot = Client("SaveRestricted",bot_token=BOT_TOKEN,api_id=int(API_ID),api_hash=API_HAS)    
 
 try:
     Bot.start()
 except Exception as e:
-    print(e)
+    print(error)
     sys.exit(1)
